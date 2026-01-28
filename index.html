@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Security Alert</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            cursor: none;
+            touch-action: none;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Scanlines Effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 50%,
+                rgba(0, 255, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 100;
+            pointer-events: none;
+            animation: scan 10s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+
+        /* Noise Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+            z-index: 99;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Glitch Effect */
+        .glitch {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f00;
+            text-shadow: 0 0 10px #f00;
+            z-index: 98;
+            animation: glitch-anim 2s infinite;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        @keyframes glitch-anim {
+            0% { transform: translate(-50%, -50%); }
+            20% { transform: translate(-51%, -50%) skewX(5deg); }
+            40% { transform: translate(-49%, -51%) skewX(-5deg); }
+            60% { transform: translate(-50%, -49%) skewX(3deg); }
+            80% { transform: translate(-48%, -50%) skewX(-3deg); }
+            100% { transform: translate(-50%, -50%); }
+        }
+
+        /* Terminal */
+        .terminal {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1rem;
+            line-height: 1.4;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 97;
+        }
+
+        .terminal::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .terminal::-webkit-scrollbar-track {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .terminal::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .line {
+            margin-bottom: 8px;
+            white-space: nowrap;
+            font-family: 'Courier New', monospace;
+        }
+
+        .line::before {
+            content: "> ";
+            color: #0f0;
+        }
+
+        .error { color: #f00; text-shadow: 0 0 5px #f00; }
+        .warning { color: #ff0; text-shadow: 0 0 5px #ff0; }
+        .success { color: #0f0; text-shadow: 0 0 5px #0f0; }
+        .info { color: #0af; text-shadow: 0 0 5px #0af; }
+
+        /* File Access Panel */
+        .file-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 200px;
+            border: 2px solid #f00;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 10px;
+            overflow: hidden;
+            z-index: 96;
+        }
+
+        .file-item {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            padding: 3px;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+            animation: file-scan 5s linear infinite;
+        }
+
+        @keyframes file-scan {
+            0% { color: #fff; }
+            50% { color: #f00; }
+            100% { color: #fff; }
+        }
+
+        /* Countdown */
+        .countdown {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 3rem;
+            color: #f00;
+            font-weight: bold;
+            z-index: 95;
+            text-shadow: 0 0 20px #f00;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Warning Symbol */
+        .warning-symbol {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            color: #f00;
+            z-index: 94;
+            animation: rotate 3s linear infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes rotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Popup Windows */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background: #111;
+            border: 3px solid #f00;
+            box-shadow: 0 0 50px #f00;
+            z-index: 200;
+            padding: 30px;
+            text-align: center;
+            display: none;
+            border-radius: 5px;
+            animation: popup-pulse 1.5s infinite;
+        }
+
+        @keyframes popup-pulse {
+            0% { box-shadow: 0 0 30px #f00; }
+            50% { box-shadow: 0 0 60px #f00; }
+            100% { box-shadow: 0 0 30px #f00; }
+        }
+
+        .popup h2 {
+            color: #f00;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .popup p {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            line-height: 1.5;
+        }
+
+        .popup button {
+            background: #f00;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .popup button:hover {
+            background: #ff3333;
+            transform: scale(1.05);
+        }
+
+        .popup button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Prank Message */
+        .prank {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000;
+            border: 3px solid #0f0;
+            box-shadow: 0 0 50px #0f0;
+            z-index: 300;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .prank h1 {
+            color: #0f0;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .prank p {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .prank button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .prank button:hover {
+            background: #0c0;
+            transform: scale(1.05);
+        }
+
+        /* Block Overlay */
+        .block-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 99999;
+            touch-action: none;
+            pointer-events: all;
+        }
+
+        /* Fullscreen Container */
+        #fullscreen-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .glitch { font-size: 1.8rem; }
+            .terminal { font-size: 0.9rem; }
+            .file-panel { width: 250px; height: 180px; }
+            .warning-symbol { font-size: 5rem; }
+            .countdown { font-size: 2.5rem; }
+            .popup h2 { font-size: 1.5rem; }
+            .popup p { font-size: 1rem; }
+            .prank h1 { font-size: 2rem; }
+            .prank p { font-size: 1rem; }
+        }
+
+        /* Hide cursor */
+        * {
+            cursor: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fullscreen Container -->
+    <div id="fullscreen-container">
+        <!-- Effects -->
+        <div class="scanlines"></div>
+        <div class="noise"></div>
+        
+        <!-- Glitch Text -->
+        <div class="glitch" id="glitch-text">SYSTEM BREACH DETECTED</div>
+        
+        <!-- Terminal Output -->
+        <div class="terminal" id="terminal">
+            <div class="line">Initializing security scan...</div>
+            <div class="line warning">WARNING: Unauthorized access detected</div>
+            <div class="line error">CRITICAL: Malicious process running [PID:7843]</div>
+            <div class="line info">Accessing system files...</div>
+            <div class="line error">ERROR: Cannot terminate foreign process</div>
+            <div class="line warning">Scanning network connections...</div>
+            <div class="line error">WARNING: Data exfiltration in progress</div>
+            <div class="line">Attempting to encrypt system logs...</div>
+            <div class="line error">FAILED: Security module corrupted</div>
+            <div class="line info">Accessing user directories...</div>
+        </div>
+        
+        <!-- File Access Panel -->
+        <div class="file-panel">
+            <div class="file-item">C:/Users/User/Documents/Passwords.txt</div>
+            <div class="file-item">C:/Users/User/Desktop/Bank_Details.xlsx</div>
+            <div class="file-item">C:/Users/User/Pictures/Private/</div>
+            <div class="file-item">C:/Users/User/Downloads/Tax_Returns.pdf</div>
+            <div class="file-item">C:/Windows/System32/config/SAM</div>
+            <div class="file-item">C:/ProgramData/Microsoft/Credentials/</div>
+            <div class="file-item">C:/Users/User/AppData/Local/Google/Chrome/</div>
+        </div>
+        
+        <!-- Warning Symbol -->
+        <div class="warning-symbol">⚠</div>
+        
+        <!-- Countdown -->
+        <div class="countdown" id="countdown">10</div>
+        
+        <!-- System Alert Popup -->
+        <div class="popup" id="system-alert">
+            <h2>⚠️ CRITICAL SYSTEM ALERT ⚠️</h2>
+            <p>The system has detected unusual activity on your device.</p>
+            <p>Multiple unauthorized access attempts detected from foreign IP addresses.</p>
+            <p style="color: #ff0; font-weight: bold;">If this is not you, secure your device immediately!</p>
+            <button id="alert-button" disabled>Next</button>
+            <p style="font-size: 0.9rem; color: #ccc; margin-top: 15px;">System lockdown active - <span id="lockdown-timer">10</span> seconds remaining</p>
+        </div>
+        
+        <!-- Prank Reveal -->
+        <div class="prank" id="prank-message">
+            <h1>😂 YOU'VE BEEN PRANKED! 👊</h1>
+            <p>This was a simulated malware attack - completely harmless!</p>
+            <p>No files were accessed, modified, or stolen.</p>
+            <p>Your device is 100% safe.</p>
+            <p style="color: #0f0; font-weight: bold;">This is just a prank to remind you about cybersecurity!</p>
+            <button id="close-button">Close This Page</button>
+        </div>
+        
+        <!-- Block User Interaction -->
+        <div class="block-overlay" id="block-overlay"></div>
+    </div>
+
+    <script>
+        // Fullscreen and lockdown immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables
+            let countdown = 10;
+            let timerInterval;
+            let audioContext;
+            let oscillators = [];
+            let isLocked = true;
+            
+            // Get elements
+            const countdownElement = document.getElementById('countdown');
+            const lockdownTimer = document.getElementById('lockdown-timer');
+            const systemAlert = document.getElementById('system-alert');
+            const prankMessage = document.getElementById('prank-message');
+            const alertButton = document.getElementById('alert-button');
+            const closeButton = document.getElementById('close-button');
+            const blockOverlay = document.getElementById('block-overlay');
+            const terminal = document.getElementById('terminal');
+            const glitchText = document.getElementById('glitch-text');
+            
+            // Fullscreen function - TRIGGER IMMEDIATELY
+            function enterFullscreen() {
+                const elem = document.documentElement;
+                
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(e => console.log("Fullscreen error:", e));
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+                
+                // Force fullscreen styling
+                document.body.style.width = '100vw';
+                document.body.style.height = '100vh';
+                document.body.style.position = 'fixed';
+                document.body.style.top = '0';
+                document.body.style.left = '0';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+            }
+            
+            // Lock device interaction
+            function lockDevice() {
+                // Prevent default behaviors
+                document.addEventListener('contextmenu', e => e.preventDefault());
+                document.addEventListener('keydown', e => {
+                    // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+                    if (e.key === 'F12' || 
+                        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                        (e.ctrlKey && e.key === 'u') ||
+                        e.key === 'Escape') {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+                
+                // Prevent touch gestures
+                document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+                document.addEventListener('gesturestart', e => e.preventDefault());
+                
+                // Prevent scrolling
+                document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
+            }
+            
+            // Dramatic Keygen Sound
+            function createKeygenSound() {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Create multiple oscillators for complex sound
+                    for(let i = 0; i < 5; i++) {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        // Varying frequencies for dramatic effect
+                        const baseFreq = 50 + (i * 100);
+                        oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
+                        
+                        // Different waveforms
+                        const types = ['sawtooth', 'square', 'triangle'];
+                        oscillator.type = types[i % types.length];
+                        
+                        // Volume
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        
+                        oscillator.start();
+                        oscillators.push({osc: oscillator, gain: gainNode});
+                        
+                        // Modulate frequency for dramatic effect
+                        setInterval(() => {
+                            if (oscillator.frequency) {
+                                const randomFreq = baseFreq + Math.sin(Date.now() / 1000) * 100;
+                                oscillator.frequency.setValueAtTime(randomFreq, audioContext.currentTime);
+                            }
+                        }, 100);
+                        
+                        // Modulate volume
+                        setInterval(() => {
+                            if (gainNode.gain) {
+                                const randomGain = 0.05 + Math.random() * 0.1;
+                                gainNode.gain.setValueAtTime(randomGain, audioContext.currentTime);
+                            }
+                        }, 200);
+                    }
+                    
+                    // Add white noise for more dramatic effect
+                    const noiseBuffer = audioContext.createBuffer(1, 44100, 44100);
+                    const output = noiseBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < 44100; i++) {
+                        output[i] = Math.random() * 2 - 1;
+                    }
+                    
+                    const whiteNoise = audioContext.createBufferSource();
+                    whiteNoise.buffer = noiseBuffer;
+                    whiteNoise.loop = true;
+                    
+                    const noiseGain = audioContext.createGain();
+                    noiseGain.gain.setValueAtTime(0.02, audioContext.currentTime);
+                    
+                    whiteNoise.connect(noiseGain);
+                    noiseGain.connect(audioContext.destination);
+                    whiteNoise.start();
+                    
+                    oscillators.push({osc: whiteNoise, gain: noiseGain});
+                    
+                } catch(e) {
+                    console.log("Audio error:", e);
+                }
+            }
+            
+            // Stop all sounds
+            function stopSounds() {
+                if (audioContext) {
+                    // Fade out all oscillators
+                    oscillators.forEach(item => {
+                        if (item.gain) {
+                            item.gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+                        }
+                    });
+                    
+                    // Stop oscillators after fade
+                    setTimeout(() => {
+                        oscillators.forEach(item => {
+                            if (item.osc && typeof item.osc.stop === 'function') {
+                                try {
+                                    item.osc.stop();
+                                } catch(e) {
+                                    // Ignore errors
+                                }
+                            }
+                        });
+                        oscillators = [];
+                        
+                        if (audioContext.state !== 'closed') {
+                            audioContext.close();
+                        }
+                    }, 1000);
+                }
+            }
+            
+            // Add dynamic terminal lines
+            function addTerminalLines() {
+                const lines = [
+                    {text: "Scanning memory sectors...", class: "info", delay: 500},
+                    {text: "WARNING: Memory corruption detected at 0x7C00", class: "error", delay: 1200},
+                    {text: "Checking registry integrity...", class: "info", delay: 2000},
+                    {text: "ERROR: Registry hive modification detected", class: "error", delay: 2800},
+                    {text: "Analyzing network packets...", class: "info", delay: 3500},
+                    {text: "ALERT: Data packets being sent to 185.159.82.45", class: "warning", delay: 4200},
+                    {text: "Attempting to block connections...", class: "info", delay: 5000},
+                    {text: "FAILED: Firewall bypass detected", class: "error", delay: 5800},
+                    {text: "Initializing emergency shutdown...", class: "warning", delay: 6500},
+                    {text: "SHUTDOWN BLOCKED: Unauthorized process interference", class: "error", delay: 7200}
+                ];
+                
+                lines.forEach(line => {
+                    setTimeout(() => {
+                        const div = document.createElement('div');
+                        div.className = `line ${line.class}`;
+                        div.textContent = line.text;
+                        terminal.appendChild(div);
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }, line.delay);
+                });
+            }
+            
+            // Start the prank
+            function startPrank() {
+                console.log("🚨 MALWARE PRANK SIMULATION STARTED 🚨");
+                
+                // Enter fullscreen immediately
+                setTimeout(enterFullscreen, 100);
+                
+                // Lock device
+                lockDevice();
+                
+                // Start countdown
+                countdownElement.textContent = countdown;
+                lockdownTimer.textContent = countdown;
+                
+                // Start dramatic sound
+                createKeygenSound();
+                
+                // Add dynamic terminal lines
+                addTerminalLines();
+                
+                // Start countdown timer
+                timerInterval = setInterval(() => {
+                    countdown--;
+                    countdownElement.textContent = countdown;
+                    lockdownTimer.textContent = countdown;
+                    
+                    // Change glitch text
+                    const texts = [
+                        "SYSTEM BREACH DETECTED",
+                        "DATA EXFILTRATION ACTIVE",
+                        "CRITICAL SECURITY THREAT",
+                        "EMERGENCY LOCKDOWN ACTIVE",
+                        "UNAUTHORIZED ACCESS",
+                        "MALWARE SIGNATURE FOUND",
+                        "SYSTEM INTEGRITY FAILED",
+                        "NETWORK INTRUSION DETECTED"
+                    ];
+                    
+                    if (countdown % 2 === 0) {
+                        glitchText.textContent = texts[Math.floor(Math.random() * texts.length)];
+                    }
+                    
+                    // Show system alert at 8 seconds
+                    if (countdown === 8) {
+                        systemAlert.style.display = 'block';
+                    }
+                    
+                    // End prank at 0 seconds
+                    if (countdown <= 0) {
+                        endPrank();
+                    }
+                }, 1000);
+            }
+            
+            // End the prank
+            function endPrank() {
+                clearInterval(timerInterval);
+                
+                // Stop sounds
+                stopSounds();
+                
+                // Hide system alert
+                systemAlert.style.display = 'none';
+                
+                // Show prank message
+                setTimeout(() => {
+                    prankMessage.style.display = 'block';
+                    isLocked = false;
+                    blockOverlay.style.display = 'none';
+                    
+                    // Add final terminal line
+                    const finalLine = document.createElement('div');
+                    finalLine.className = 'line success';
+                    finalLine.textContent = "Simulation complete. No actual threat detected. System secure.";
+                    terminal.appendChild(finalLine);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    
+                    // Exit fullscreen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    } else if (document.msExitFullscreen) {
+                        document.msExitFullscreen();
+                    }
+                }, 500);
+            }
+            
+            // Event listeners
+            alertButton.addEventListener('click', () => {
+                if (!isLocked) {
+                    systemAlert.style.display = 'none';
+                }
+            });
+            
+            closeButton.addEventListener('click', () => {
+                // Show closing message
+                prankMessage.innerHTML = `
+                    <h1 style="color:#0f0">😄 PRANK COMPLETE!</h1>
+                    <p>Remember to always:</p>
+                    <p style="text-align:left; margin:15px 0; color:#ccc">
+                        • Use strong passwords<br>
+                        • Keep software updated<br>
+                        • Avoid suspicious links<br>
+                        • Use antivirus software<br>
+                        • Backup important files
+                    </p>
+                    <p style="color:#0f0; font-size:1.5rem">Closing in 3 seconds...</p>
+                `;
+                
+                // Close after 3 seconds
+                setTimeout(() => {
+                    window.location.href = "about:blank";
+                }, 3000);
+            });
+            
+            // Prevent exiting fullscreen during lockdown
+            document.addEventListener('fullscreenchange', () => {
+                if (isLocked && !document.fullscreenElement) {
+                    enterFullscreen();
+                }
+            });
+            
+            document.addEventListener('webkitfullscreenchange', () => {
+                if (isLocked && !document.webkitFullscreenElement) {
+                    enterFullscreen();
+                }
+            });
+            
+            // Start prank with slight delay
+            setTimeout(startPrank, 300);
+            
+            // Add random visual effects
+            setInterval(() => {
+                if (isLocked) {
+                    // Random flashes
+                    if (Math.random() > 0.8) {
+                        document.body.style.backgroundColor = '#200';
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = '#000';
+                        }, 100);
+                    }
+                    
+                    // Random file item highlight
+                    const files = document.querySelectorAll('.file-item');
+                    if (files.length > 0) {
+                        files[Math.floor(Math.random() * files.length)].style.color = '#f00';
+                        setTimeout(() => {
+                            files.forEach(f => f.style.color = '');
+                        }, 300);
+                    }
+                }
+            }, 500);
+            
+            // Mobile device specific
+            if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                // Mobile optimizations
+                document.body.style.fontSize = '14px';
+                
+                // Prevent zoom
+                document.addEventListener('gesturestart', function(e) {
+                    e.preventDefault();
+                });
+                
+                // Hide address bar (attempt)
+                window.scrollTo(0, 1);
+            }
+        });
+    </script>
+</body>
+</html>
