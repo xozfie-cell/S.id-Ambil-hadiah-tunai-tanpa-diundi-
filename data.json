@@ -1,0 +1,88 @@
+{
+  "prankConfig": {
+    "name": "Blue Screen of Death Prank",
+    "version": "2.0",
+    "description": "A realistic system crash simulation prank",
+    "author": "PrankMaster",
+    "panicDuration": 45000,
+    "alertDelay": 10000,
+    "scrollingSpeed": 30,
+    "progressDuration": 40000,
+    "alarmVolume": 0.7
+  },
+  "errorMessages": [
+    "ERROR: CRITICAL_PROCESS_DIED",
+    "SYSTEM_THREAD_EXCEPTION_NOT_HANDLED",
+    "MEMORY_MANAGEMENT_ERROR_DETECTED",
+    "KERNEL_SECURITY_CHECK_FAILURE",
+    "DRIVER_IRQL_NOT_LESS_OR_EQUAL",
+    "PAGE_FAULT_IN_NONPAGED_AREA",
+    "SYSTEM_SERVICE_EXCEPTION",
+    "ATTEMPTED_WRITE_TO_READONLY_MEMORY",
+    "DATA_BUS_ERROR",
+    "INVALID_PROCESS_ATTACH_ATTEMPT",
+    "UNEXPECTED_KERNEL_MODE_TRAP",
+    "NTFS_FILE_SYSTEM_CORRUPTED",
+    "FAT_FILE_SYSTEM_CORRUPTION",
+    "VIDEO_TDR_TIMEOUT_DETECTED",
+    "VIDEO_SCHEDULER_INTERNAL_ERROR"
+  ],
+  "scanMessages": [
+    ">>>>>> SCANNING SYSTEM FILES <<<<<<",
+    ">>>>>> ANALYZING MEMORY DUMP <<<<<<",
+    ">>>>>> DETECTING MALWARE SIGNATURES <<<<<<",
+    ">>>>>> INITIATING EMERGENCY PROTOCOL <<<<<<"
+  ],
+  "malwareMessages": [
+    "ACCESS VIOLATION at address 0x00007FF6A1B45678",
+    "STACK BUFFER OVERFLOW DETECTED",
+    "UNAUTHORIZED ACCESS ATTEMPT LOGGED",
+    "CRYPTOMINING MALWARE DETECTED: Trojan.CoinMiner",
+    "RANSOMWARE SIGNATURE FOUND: Razy/FileCoder",
+    "ROOTKIT ACTIVITY DETECTED IN KERNEL",
+    "DATA EXFILTRATION IN PROGRESS",
+    "REMOTE ACCESS TROJAN ESTABLISHING CONNECTION",
+    "FIREWALL BREACH DETECTED",
+    "ANTIVIRUS SERVICES DISABLED",
+    "SYSTEM RESTORE POINTS DELETED",
+    "BOOT SECTOR MODIFIED",
+    "MASTER FILE TABLE CORRUPTION DETECTED",
+    "HARD DRIVE S.M.A.R.T. FAILURE IMMINENT",
+    "CPU OVERHEAT PROTECTION TRIGGERED",
+    "MEMORY INTEGRITY CHECK FAILED",
+    "SECURE BOOT VIOLATION",
+    "TPM INTEGRITY CHECK FAILURE",
+    "BIOS FIRMWARE COMPROMISED",
+    "NETWORK ADAPTER HIJACKED",
+    "DNS SETTINGS MODIFIED WITHOUT AUTHORIZATION",
+    "ENCRYPTION IN PROGRESS: 34% OF FILES AFFECTED",
+    "BACKUP SYSTEMS OFFLINE",
+    "AUTOMATIC REPAIR FAILED",
+    "SYSTEM RESTORE FAILED",
+    "STARTUP REPAIR COULD NOT DETECT THE PROBLEM"
+  ],
+  "uiTexts": {
+    "bsodTitle": "Your PC ran into a problem and needs to restart. We're just collecting some error info, and then we'll restart for you.",
+    "progressText": "complete",
+    "errorLink": "https://www.windows.com/stopcode",
+    "stopCode": "Stop code: CRITICAL_PROCESS_DIED",
+    "alertTitle": "CRITICAL SYSTEM ALERT",
+    "alertMessage1": "Security scan has detected multiple malware threats in your system.",
+    "alertMessage2": "Immediate action required to prevent data loss!",
+    "progressSteps": [
+      "Initializing system cleanup...",
+      "Scanning for malware...",
+      "Preparing cleanup tools...",
+      "Finalizing cleanup setup...",
+      "Cleanup ready to start",
+      "Cleanup in progress... DO NOT TURN OFF YOUR DEVICE!"
+    ],
+    "buttonTexts": {
+      "cancel": "CANCEL",
+      "cancelBlocked": "CANCEL BLOCKED",
+      "action": "START CLEANUP",
+      "actionProgress": "CLEANING..."
+    },
+    "endMessage": "This was a prank! Your system is fine. 😊\n\nDon't worry, nothing was actually wrong with your device. This was just a simulation."
+  }
+}
