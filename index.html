@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Security Alert</title>
+    <title>System Security Scan</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚠️</text></svg>">
 </head>
 <body>
+    <!-- Auto-click overlay to trigger fullscreen -->
+    <div id="auto-click-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;"></div>
+    
+    <!-- Main container -->
     <div id="fullscreen-container">
         <div class="scanlines"></div>
         <div class="noise"></div>
@@ -41,7 +45,7 @@
         
         <div class="warning-symbol">⚠</div>
         
-        <div class="countdown" id="countdown">10</div>
+        <div class="countdown" id="countdown">15</div>
         
         <div class="popup" id="system-alert">
             <h2>⚠️ CRITICAL SYSTEM ALERT ⚠️</h2>
@@ -49,11 +53,11 @@
             <p>Multiple unauthorized access attempts detected from foreign IP addresses.</p>
             <p style="color: #ff0; font-weight: bold;">If this is not you, secure your device immediately!</p>
             <button id="alert-button" disabled>Next</button>
-            <p style="font-size: 0.9rem; color: #ccc; margin-top: 15px;">System lockdown active - <span id="lockdown-timer">10</span> seconds remaining</p>
+            <p style="font-size: 0.9rem; color: #ccc; margin-top: 15px;">System lockdown active - <span id="lockdown-timer">15</span> seconds remaining</p>
         </div>
         
         <div class="prank" id="prank-message">
-            <h1>😂 YOU'VE BEEN PRANKED! 👊</h1>
+            <h1>YOU'VE BEEN PRANKED!</h1>
             <p>This was a simulated malware attack - completely harmless!</p>
             <p>No files were accessed, modified, or stolen.</p>
             <p>Your device is 100% safe.</p>
