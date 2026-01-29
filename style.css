@@ -30,6 +30,17 @@ body {
     flex-direction: column;
 }
 
+#auto-click-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 999999;
+    cursor: pointer;
+}
+
 /* Scanlines Effect */
 .scanlines {
     position: fixed;
@@ -120,7 +131,7 @@ body {
     margin-bottom: 8px;
     white-space: nowrap;
     font-family: 'Courier New', monospace;
-    animation: typing 1.5s steps(40, end);
+    animation: typing 2s steps(40, end);
 }
 
 @keyframes typing {
@@ -353,23 +364,4 @@ body {
     .popup p { font-size: 1rem; }
     .prank h1 { font-size: 2rem; }
     .prank p { font-size: 1rem; }
-}
-
-/* Tambahan untuk fullscreen trick */
-#auto-click-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: transparent;
-    z-index: 999999;
-    cursor: pointer;
-}
-
-/* Tambah untuk lock orientation pada mobile */
-@media screen and (orientation:landscape) {
-    body {
-        transform: rotate(0deg);
-    }
 }
