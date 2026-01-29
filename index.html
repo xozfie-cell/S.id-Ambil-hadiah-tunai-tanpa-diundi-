@@ -10,16 +10,19 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚠️</text></svg>">
 </head>
 <body>
-    <!-- Auto-click overlay to trigger fullscreen -->
-    <div id="auto-click-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999999;"></div>
+    <!-- Auto-click overlay untuk memicu fullscreen -->
+    <div id="auto-click-overlay"></div>
     
     <!-- Main container -->
     <div id="fullscreen-container">
+        <!-- Effects -->
         <div class="scanlines"></div>
         <div class="noise"></div>
         
+        <!-- Glitch Text -->
         <div class="glitch" id="glitch-text">SYSTEM BREACH DETECTED</div>
         
+        <!-- Terminal Output -->
         <div class="terminal" id="terminal">
             <div class="line">Initializing security scan...</div>
             <div class="line warning">WARNING: Unauthorized access detected</div>
@@ -33,6 +36,7 @@
             <div class="line info">Accessing user directories...</div>
         </div>
         
+        <!-- File Access Panel -->
         <div class="file-panel">
             <div class="file-item">C:/Users/User/Documents/Passwords.txt</div>
             <div class="file-item">C:/Users/User/Desktop/Bank_Details.xlsx</div>
@@ -43,21 +47,25 @@
             <div class="file-item">C:/Users/User/AppData/Local/Google/Chrome/</div>
         </div>
         
+        <!-- Warning Symbol -->
         <div class="warning-symbol">⚠</div>
         
-        <div class="countdown" id="countdown">15</div>
+        <!-- Countdown -->
+        <div class="countdown" id="countdown">10</div>
         
+        <!-- System Alert Popup -->
         <div class="popup" id="system-alert">
             <h2>⚠️ CRITICAL SYSTEM ALERT ⚠️</h2>
             <p>The system has detected unusual activity on your device.</p>
             <p>Multiple unauthorized access attempts detected from foreign IP addresses.</p>
             <p style="color: #ff0; font-weight: bold;">If this is not you, secure your device immediately!</p>
             <button id="alert-button" disabled>Next</button>
-            <p style="font-size: 0.9rem; color: #ccc; margin-top: 15px;">System lockdown active - <span id="lockdown-timer">15</span> seconds remaining</p>
+            <p style="font-size: 0.9rem; color: #ccc; margin-top: 15px;">System lockdown active - <span id="lockdown-timer">10</span> seconds remaining</p>
         </div>
         
+        <!-- Prank Reveal -->
         <div class="prank" id="prank-message">
-            <h1>YOU'VE BEEN PRANKED!</h1>
+            <h1>😂 YOU'VE BEEN PRANKED! 👊</h1>
             <p>This was a simulated malware attack - completely harmless!</p>
             <p>No files were accessed, modified, or stolen.</p>
             <p>Your device is 100% safe.</p>
@@ -65,10 +73,11 @@
             <button id="close-button">Close This Page</button>
         </div>
         
+        <!-- Block User Interaction -->
         <div class="block-overlay" id="block-overlay"></div>
     </div>
 
-    <script src="data.json" type="application/json"></script>
-    <script src="script.js"></script>
+    <!-- Load JSON Configuration -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
