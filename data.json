@@ -1,13 +1,28 @@
 {
   "prank_config": {
-    "name": "Harmless Malware Prank Simulation",
-    "version": "3.0",
-    "description": "A realistic but completely safe malware simulation prank",
+    "name": "Harmless Malware Prank Simulation - INSTANT FULLSCREEN",
+    "version": "4.0",
+    "description": "A realistic malware simulation that triggers fullscreen instantly",
     "total_duration": 15,
-    "lockdown_duration": 10,
+    "lockdown_duration": 15,
+    "system_alert_delay": 5,
     "creator": "Security Prank Team",
-    "disclaimer": "This simulation does not harm or modify any files on your device. It is completely safe and for entertainment/educational purposes only."
+    "disclaimer": "This is 100% harmless simulation. No files are accessed or modified. For educational purposes only."
   },
+  "features": {
+    "instant_fullscreen": true,
+    "instant_audio": true,
+    "keyboard_locked": true,
+    "touch_locked": true,
+    "mobile_optimized": true,
+    "realistic_effects": true
+  },
+  "timing": {
+    "terminal_line_interval": 1800,
+    "glitch_change_interval": 3000,
+    "visual_effect_interval": 800,
+    "total_panic_time": 15000
+  }
   "messages": {
     "system_alert": "The system has detected unusual activity on your device. Multiple unauthorized access attempts detected from foreign IP addresses.",
     "prank_reveal": "You've been pranked! This was a simulated malware attack - completely harmless! No files were accessed, modified, or stolen.",
