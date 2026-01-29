@@ -1,289 +1,417 @@
+// Malware Prank Simulation - Script File
+// Duration: 10 seconds for lockdown, 15 seconds total experience
+
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
-    const blueScreen = document.getElementById('blue-screen');
-    const fakeAlert = document.getElementById('fake-alert');
-    const progressFill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-    const scrollingTextContainer = document.getElementById('scrolling-text');
-    const alarmSound = document.getElementById('alarm-sound');
-    const alertProgressFill = document.querySelector('.alert-progress-fill');
-    const alertProgressText = document.querySelector('.alert-progress-text');
-    const cancelBtn = document.getElementById('cancel-btn');
-    const actionBtn = document.getElementById('action-btn');
+    const countdownElement = document.getElementById('countdown');
+    const lockdownTimer = document.getElementById('lockdown-timer');
+    const systemAlert = document.getElementById('system-alert');
+    const prankMessage = document.getElementById('prank-message');
+    const alertButton = document.getElementById('alert-button');
+    const closeButton = document.getElementById('close-button');
+    const blockOverlay = document.getElementById('block-overlay');
+    const terminal = document.getElementById('terminal');
+    const glitchText = document.getElementById('glitch-text');
     
-    // Configuration
-    const CONFIG = {
-        panicDuration: 45000, // 45 seconds for maximum panic effect
-        alertDelay: 10000, // 10 seconds delay for alert
-        scrollingSpeed: 30, // seconds for full scroll animation (slower than before)
-        progressDuration: 40000, // 40 seconds for BSOD progress
-        alarmVolume: 0.7
-    };
+    // Variables
+    let countdown = 10;
+    let timerInterval;
+    let audioContext;
+    let oscillators = [];
+    let isLocked = true;
+    let totalTime = 0;
     
-    // Text data for scrolling effect
-    const SCROLLING_TEXTS = [
-        "ERROR: CRITICAL_PROCESS_DIED",
-        "SYSTEM_THREAD_EXCEPTION_NOT_HANDLED",
-        "MEMORY_MANAGEMENT_ERROR_DETECTED",
-        "KERNEL_SECURITY_CHECK_FAILURE",
-        "DRIVER_IRQL_NOT_LESS_OR_EQUAL",
-        "PAGE_FAULT_IN_NONPAGED_AREA",
-        "SYSTEM_SERVICE_EXCEPTION",
-        "ATTEMPTED_WRITE_TO_READONLY_MEMORY",
-        "DATA_BUS_ERROR",
-        "INVALID_PROCESS_ATTACH_ATTEMPT",
-        "UNEXPECTED_KERNEL_MODE_TRAP",
-        "NTFS_FILE_SYSTEM_CORRUPTED",
-        "FAT_FILE_SYSTEM_CORRUPTION",
-        "VIDEO_TDR_TIMEOUT_DETECTED",
-        "VIDEO_SCHEDULER_INTERNAL_ERROR",
-        ">>>>>> SCANNING SYSTEM FILES <<<<<<",
-        ">>>>>> ANALYZING MEMORY DUMP <<<<<<",
-        ">>>>>> DETECTING MALWARE SIGNATURES <<<<<<",
-        "ACCESS VIOLATION at address 0x00007FF6A1B45678",
-        "STACK BUFFER OVERFLOW DETECTED",
-        "UNAUTHORIZED ACCESS ATTEMPT LOGGED",
-        "CRYPTOMINING MALWARE DETECTED: Trojan.CoinMiner",
-        "RANSOMWARE SIGNATURE FOUND: Razy/FileCoder",
-        "ROOTKIT ACTIVITY DETECTED IN KERNEL",
-        "DATA EXFILTRATION IN PROGRESS",
-        "REMOTE ACCESS TROJAN ESTABLISHING CONNECTION",
-        "FIREWALL BREACH DETECTED",
-        "ANTIVIRUS SERVICES DISABLED",
-        "SYSTEM RESTORE POINTS DELETED",
-        "BOOT SECTOR MODIFIED",
-        "MASTER FILE TABLE CORRUPTION DETECTED",
-        "HARD DRIVE S.M.A.R.T. FAILURE IMMINENT",
-        "CPU OVERHEAT PROTECTION TRIGGERED",
-        "MEMORY INTEGRITY CHECK FAILED",
-        "SECURE BOOT VIOLATION",
-        "TPM INTEGRITY CHECK FAILURE",
-        "BIOS FIRMWARE COMPROMISED",
-        "NETWORK ADAPTER HIJACKED",
-        "DNS SETTINGS MODIFIED WITHOUT AUTHORIZATION",
-        "ENCRYPTION IN PROGRESS: 34% OF FILES AFFECTED",
-        "BACKUP SYSTEMS OFFLINE",
-        "AUTOMATIC REPAIR FAILED",
-        "SYSTEM RESTORE FAILED",
-        "STARTUP REPAIR COULD NOT DETECT THE PROBLEM",
-        ">>>>>> INITIATING EMERGENCY PROTOCOL <<<<<<"
-    ];
-    
-    // Initialize
-    let panicStartTime = null;
-    let panicInterval = null;
-    
-    // Start the prank
-    function startPrank() {
-        panicStartTime = Date.now();
-        
-        // 1. Play alarm sound immediately
-        playAlarmSound();
-        
-        // 2. Enter fullscreen mode
-        enterFullscreen();
-        
-        // 3. Start BSOD progress animation
-        startProgressAnimation();
-        
-        // 4. Generate scrolling text
-        generateScrollingText();
-        
-        // 5. Show alert after delay
-        setTimeout(showAlert, CONFIG.alertDelay);
-        
-        // 6. Set up panic duration timeout
-        panicInterval = setTimeout(endPrank, CONFIG.panicDuration);
-    }
-    
-    // Play alarm sound
-    function playAlarmSound() {
-        alarmSound.volume = CONFIG.alarmVolume;
-        alarmSound.play().catch(e => {
-            console.log("Audio play failed, trying with user interaction fallback");
-            // Fallback: Play on first user interaction
-            document.addEventListener('click', function playOnClick() {
-                alarmSound.play();
-                document.removeEventListener('click', playOnClick);
-            }, { once: true });
-        });
-    }
-    
-    // Enter fullscreen mode
+    // Fullscreen function - TRIGGER IMMEDIATELY
     function enterFullscreen() {
         const elem = document.documentElement;
         
         if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.mozRequestFullScreen) { // Firefox
-            elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) { // Chrome, Safari, Opera
+            elem.requestFullscreen().catch(e => {
+                console.log("Fullscreen error:", e);
+                // Fallback: try to fullscreen body instead
+                document.body.requestFullscreen().catch(e2 => console.log("Fallback fullscreen error:", e2));
+            });
+        } else if (elem.webkitRequestFullscreen) {
             elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { // IE/Edge
+        } else if (elem.msRequestFullscreen) {
             elem.msRequestFullscreen();
         }
+        
+        // Force fullscreen styling
+        document.body.style.width = '100vw';
+        document.body.style.height = '100vh';
+        document.body.style.position = 'fixed';
+        document.body.style.top = '0';
+        document.body.style.left = '0';
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
     }
     
-    // Start BSOD progress animation
-    function startProgressAnimation() {
-        let progress = 0;
-        const interval = 100; // Update every 100ms
-        const increment = 100 / (CONFIG.progressDuration / interval);
-        
-        const progressInterval = setInterval(() => {
-            progress += increment;
-            if (progress > 100) {
-                progress = 100;
-                clearInterval(progressInterval);
+    // Lock device interaction
+    function lockDevice() {
+        // Prevent default behaviors
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Escape
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+                (e.ctrlKey && e.key === 'u') ||
+                e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
             }
-            
-            progressFill.style.width = `${progress}%`;
-            progressText.textContent = `${Math.round(progress)}% complete`;
-        }, interval);
+        }, true);
+        
+        // Prevent touch gestures
+        document.addEventListener('touchmove', e => {
+            if (isLocked) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('gesturestart', e => e.preventDefault());
+        
+        // Prevent scrolling
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
     }
     
-    // Generate scrolling text
-    function generateScrollingText() {
-        // Clear container
-        scrollingTextContainer.innerHTML = '';
-        
-        // Create multiple lines for more dramatic effect
-        for (let i = 0; i < 5; i++) {
-            const line = document.createElement('div');
-            line.className = 'scrolling-line';
+    // Dramatic Keygen Sound - START IMMEDIATELY
+    function createKeygenSound() {
+        try {
+            // Create audio context
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
-            // Combine multiple error texts for each line
-            let lineText = '';
-            const startIdx = i * 9;
-            for (let j = 0; j < 9 && startIdx + j < SCROLLING_TEXTS.length; j++) {
-                lineText += SCROLLING_TEXTS[startIdx + j] + ' | ';
+            // Create multiple oscillators for complex sound
+            for(let i = 0; i < 6; i++) {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Varying frequencies for dramatic effect
+                const baseFreq = 40 + (i * 80);
+                oscillator.frequency.setValueAtTime(baseFreq, audioContext.currentTime);
+                
+                // Different waveforms
+                const types = ['sawtooth', 'square', 'triangle'];
+                oscillator.type = types[i % types.length];
+                
+                // Volume - start immediately
+                gainNode.gain.setValueAtTime(0.12, audioContext.currentTime);
+                
+                oscillator.start();
+                oscillators.push({osc: oscillator, gain: gainNode});
+                
+                // Modulate frequency for dramatic effect - faster changes
+                setInterval(() => {
+                    if (oscillator.frequency && isLocked) {
+                        const time = Date.now() / 1000;
+                        const randomFreq = baseFreq + Math.sin(time * (i+1) * 2) * 50 + Math.cos(time * (i+2)) * 30;
+                        oscillator.frequency.setValueAtTime(randomFreq, audioContext.currentTime);
+                    }
+                }, 80 + Math.random() * 40);
+                
+                // Modulate volume
+                setInterval(() => {
+                    if (gainNode.gain && isLocked) {
+                        const randomGain = 0.08 + Math.random() * 0.08;
+                        gainNode.gain.setValueAtTime(randomGain, audioContext.currentTime);
+                    }
+                }, 150 + Math.random() * 100);
             }
             
-            line.textContent = lineText.repeat(3); // Repeat to make it longer
-            scrollingTextContainer.appendChild(line);
+            // Add white noise for more dramatic effect
+            const bufferSize = 44100;
+            const noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
             
-            // Stagger the animations
-            line.style.animationDelay = `${i * 2}s`;
-            line.style.animationDuration = `${CONFIG.scrollingSpeed}s`;
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            
+            const whiteNoise = audioContext.createBufferSource();
+            whiteNoise.buffer = noiseBuffer;
+            whiteNoise.loop = true;
+            
+            const noiseGain = audioContext.createGain();
+            noiseGain.gain.setValueAtTime(0.03, audioContext.currentTime);
+            
+            whiteNoise.connect(noiseGain);
+            noiseGain.connect(audioContext.destination);
+            whiteNoise.start();
+            
+            oscillators.push({osc: whiteNoise, gain: noiseGain});
+            
+            console.log("Keygen sound started successfully");
+            
+        } catch(e) {
+            console.log("Audio error:", e);
         }
     }
     
-    // Show alert with loading animation
-    function showAlert() {
-        fakeAlert.classList.add('show');
-        
-        // Animate alert progress bar
-        let alertProgress = 0;
-        const alertInterval = setInterval(() => {
-            alertProgress += 0.5;
-            alertProgressFill.style.width = `${alertProgress}%`;
+    // Stop all sounds
+    function stopSounds() {
+        if (audioContext) {
+            // Fade out all oscillators
+            oscillators.forEach(item => {
+                if (item.gain) {
+                    item.gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.5);
+                }
+            });
             
-            if (alertProgress >= 100) {
-                clearInterval(alertInterval);
-                alertProgressText.textContent = "Cleanup ready to start";
-                cancelBtn.disabled = false;
-                cancelBtn.style.cursor = "pointer";
-                cancelBtn.style.backgroundColor = "#f0f0f0";
-                cancelBtn.style.color = "#333";
-            } else if (alertProgress < 30) {
-                alertProgressText.textContent = "Initializing system cleanup...";
-            } else if (alertProgress < 60) {
-                alertProgressText.textContent = "Scanning for malware...";
-            } else if (alertProgress < 90) {
-                alertProgressText.textContent = "Preparing cleanup tools...";
-            } else {
-                alertProgressText.textContent = "Finalizing cleanup setup...";
-            }
-        }, 50); // Update every 50ms for smooth animation
-    }
-    
-    // End prank and reset
-    function endPrank() {
-        clearTimeout(panicInterval);
-        
-        // Stop alarm sound
-        alarmSound.pause();
-        alarmSound.currentTime = 0;
-        
-        // Exit fullscreen
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
-        }
-        
-        // Show "prank" message
-        alert("This was a prank! Your system is fine. 😊\n\nDon't worry, nothing was actually wrong with your device. This was just a simulation.");
-        
-        // Reset page after alert is closed
-        setTimeout(() => {
-            document.location.reload();
-        }, 100);
-    }
-    
-    // Event listeners for alert buttons
-    actionBtn.addEventListener('click', function() {
-        // Make it seem like cleanup is starting
-        alertProgressText.textContent = "Cleanup in progress... DO NOT TURN OFF YOUR DEVICE!";
-        actionBtn.disabled = true;
-        actionBtn.textContent = "CLEANING...";
-        actionBtn.style.backgroundColor = "#666";
-        
-        // End prank after a short delay
-        setTimeout(endPrank, 3000);
-    });
-    
-    cancelBtn.addEventListener('click', function() {
-        if (!cancelBtn.disabled) {
-            // Make it seem like cancellation causes more problems
-            alertProgressText.textContent = "ERROR: Cannot cancel critical cleanup!";
-            cancelBtn.disabled = true;
-            cancelBtn.textContent = "CANCEL BLOCKED";
-            
-            // Auto-click action button after delay
+            // Stop oscillators after fade
             setTimeout(() => {
-                actionBtn.click();
-            }, 2000);
+                oscillators.forEach(item => {
+                    if (item.osc && typeof item.osc.stop === 'function') {
+                        try {
+                            item.osc.stop();
+                        } catch(e) {
+                            // Ignore errors
+                        }
+                    }
+                });
+                oscillators = [];
+                
+                if (audioContext.state !== 'closed') {
+                    audioContext.close();
+                }
+            }, 1500);
+        }
+    }
+    
+    // Add dynamic terminal lines - SLOWER and MORE REALISTIC
+    function addTerminalLines() {
+        const lines = [
+            {text: "Scanning memory sectors...", class: "info", delay: 1000},
+            {text: "WARNING: Memory corruption detected at 0x7C00", class: "error", delay: 2500},
+            {text: "Checking registry integrity...", class: "info", delay: 4000},
+            {text: "ERROR: Registry hive modification detected", class: "error", delay: 5500},
+            {text: "Analyzing network packets...", class: "info", delay: 7000},
+            {text: "ALERT: Data packets being sent to 185.159.82.45", class: "warning", delay: 8500},
+            {text: "Attempting to block connections...", class: "info", delay: 10000},
+            {text: "FAILED: Firewall bypass detected", class: "error", delay: 11500},
+            {text: "Initializing emergency shutdown...", class: "warning", delay: 13000},
+            {text: "SHUTDOWN BLOCKED: Unauthorized process interference", class: "error", delay: 14500},
+            {text: "Accessing user credential database...", class: "info", delay: 16000},
+            {text: "CRITICAL: Login credentials compromised", class: "error", delay: 17500},
+            {text: "Scanning for backup files...", class: "info", delay: 19000},
+            {text: "ERROR: Backup files corrupted or missing", class: "error", delay: 20500}
+        ];
+        
+        lines.forEach(line => {
+            setTimeout(() => {
+                const div = document.createElement('div');
+                div.className = `line ${line.class}`;
+                div.textContent = line.text;
+                terminal.appendChild(div);
+                terminal.scrollTop = terminal.scrollHeight;
+            }, line.delay);
+        });
+    }
+    
+    // Start the prank
+    function startPrank() {
+        console.log("🚨 MALWARE PRANK SIMULATION STARTED 🚨");
+        
+        // Enter fullscreen immediately - NO DELAY
+        enterFullscreen();
+        
+        // Lock device immediately
+        lockDevice();
+        
+        // Start dramatic sound IMMEDIATELY
+        createKeygenSound();
+        
+        // Start countdown
+        countdownElement.textContent = countdown;
+        lockdownTimer.textContent = countdown;
+        
+        // Add dynamic terminal lines (slower pace)
+        addTerminalLines();
+        
+        // Start total time tracking
+        const totalTimer = setInterval(() => {
+            totalTime++;
+            if (totalTime >= 15) { // Total experience: 15 seconds
+                clearInterval(totalTimer);
+            }
+        }, 1000);
+        
+        // Start countdown timer
+        timerInterval = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            lockdownTimer.textContent = countdown;
+            
+            // Change glitch text periodically
+            const texts = [
+                "SYSTEM BREACH DETECTED",
+                "DATA EXFILTRATION ACTIVE",
+                "CRITICAL SECURITY THREAT",
+                "EMERGENCY LOCKDOWN ACTIVE",
+                "UNAUTHORIZED ACCESS",
+                "MALWARE SIGNATURE FOUND",
+                "SYSTEM INTEGRITY FAILED",
+                "NETWORK INTRUSION DETECTED",
+                "ENCRYPTION IN PROGRESS",
+                "FILES BEING COMPROMISED"
+            ];
+            
+            if (countdown % 3 === 0) {
+                glitchText.textContent = texts[Math.floor(Math.random() * texts.length)];
+            }
+            
+            // Show system alert at 8 seconds (gives 2 seconds before end)
+            if (countdown === 8) {
+                setTimeout(() => {
+                    systemAlert.style.display = 'block';
+                }, 500);
+            }
+            
+            // End prank at 0 seconds (10 second lockdown)
+            if (countdown <= 0) {
+                endPrank();
+            }
+        }, 1000);
+    }
+    
+    // End the prank
+    function endPrank() {
+        clearInterval(timerInterval);
+        
+        // Stop sounds
+        stopSounds();
+        
+        // Hide system alert
+        systemAlert.style.display = 'none';
+        
+        // Show prank message after a brief pause
+        setTimeout(() => {
+            prankMessage.style.display = 'block';
+            isLocked = false;
+            blockOverlay.style.display = 'none';
+            
+            // Add final terminal line
+            setTimeout(() => {
+                const finalLine = document.createElement('div');
+                finalLine.className = 'line success';
+                finalLine.textContent = "Simulation complete. No actual threat detected. System secure.";
+                terminal.appendChild(finalLine);
+                terminal.scrollTop = terminal.scrollHeight;
+            }, 500);
+            
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }, 1000);
+    }
+    
+    // Event listeners
+    alertButton.addEventListener('click', () => {
+        if (!isLocked) {
+            systemAlert.style.display = 'none';
         }
     });
     
-    // Start prank when page loads
-    startPrank();
-    
-    // Also start on click (for audio autoplay policies)
-    document.addEventListener('click', function initOnClick() {
-        if (alarmSound.paused) {
-            playAlarmSound();
-        }
-        document.removeEventListener('click', initOnClick);
-    }, { once: true });
-    
-    // Handle fullscreen change
-    document.addEventListener('fullscreenchange', function() {
-        if (!document.fullscreenElement) {
-            // If user exits fullscreen, re-enter it
-            setTimeout(enterFullscreen, 100);
-        }
+    closeButton.addEventListener('click', () => {
+        // Show closing message
+        prankMessage.innerHTML = `
+            <h1 style="color:#0f0">😄 PRANK COMPLETE!</h1>
+            <p>This was just a harmless simulation.</p>
+            <p style="text-align:left; margin:15px 0; color:#ccc; font-size: 1rem;">
+                • No files were accessed or modified<br>
+                • No data was stolen<br>
+                • Your device is completely safe<br>
+                • This was for educational purposes only
+            </p>
+            <p style="color:#0f0; font-size:1.2rem">Closing in 3 seconds...</p>
+        `;
+        
+        // Close after 3 seconds
+        setTimeout(() => {
+            window.location.href = "about:blank";
+        }, 3000);
     });
     
-    // Prevent context menu
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    // Prevent keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-        // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-        if (e.key === 'F12' || 
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-            (e.ctrlKey && e.key === 'u')) {
-            e.preventDefault();
-            return false;
+    // Prevent exiting fullscreen during lockdown
+    document.addEventListener('fullscreenchange', () => {
+        if (isLocked && !document.fullscreenElement) {
+            enterFullscreen();
         }
     });
+    
+    document.addEventListener('webkitfullscreenchange', () => {
+        if (isLocked && !document.webkitFullscreenElement) {
+            enterFullscreen();
+        }
+    });
+    
+    // Mobile device specific optimizations
+    function optimizeForMobile() {
+        if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            // Mobile optimizations
+            document.body.style.fontSize = '14px';
+            
+            // Prevent zoom
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
+            
+            // Hide address bar (attempt)
+            window.scrollTo(0, 1);
+            
+            // Force portrait orientation
+            const meta = document.createElement('meta');
+            meta.name = 'viewport';
+            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            document.head.appendChild(meta);
+        }
+    }
+    
+    // Add random visual effects during lockdown
+    function addVisualEffects() {
+        setInterval(() => {
+            if (isLocked) {
+                // Random red flashes (less frequent but more dramatic)
+                if (Math.random() > 0.9) {
+                    document.body.style.backgroundColor = '#300';
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = '#000';
+                    }, 150);
+                }
+                
+                // Random file item highlight
+                const files = document.querySelectorAll('.file-item');
+                if (files.length > 0 && Math.random() > 0.7) {
+                    const randomFile = files[Math.floor(Math.random() * files.length)];
+                    randomFile.style.color = '#f00';
+                    randomFile.style.fontWeight = 'bold';
+                    setTimeout(() => {
+                        randomFile.style.color = '';
+                        randomFile.style.fontWeight = '';
+                    }, 800);
+                }
+            }
+        }, 800);
+    }
+    
+    // Initialize everything
+    function initialize() {
+        optimizeForMobile();
+        addVisualEffects();
+        
+        // Start prank immediately with minimal delay
+        setTimeout(startPrank, 100);
+    }
+    
+    // Start the simulation
+    initialize();
 });
